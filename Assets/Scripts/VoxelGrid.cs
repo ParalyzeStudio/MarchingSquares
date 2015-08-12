@@ -5,7 +5,7 @@ using System.Collections.Generic;
 public class VoxelGrid : MonoBehaviour
 {
     public int m_resolution;
-    private float m_voxelSize;
+    private float m_voxelSize, m_gridSize;
 
     private Voxel[] m_voxels;
 
@@ -17,9 +17,13 @@ public class VoxelGrid : MonoBehaviour
 	private List<Vector3> m_vertices;
     private List<int> m_triangles;
 
+    public VoxelGrid m_xNeighbor, m_yNeighbor, m_xyNeighbor;
+    private Voxel m_dummyX, m_dummyY, m_dummyT;
+
     public void Initialize(int resolution, float size)
     {
         this.m_resolution = resolution;
+        m_gridSize = size;
         m_voxelSize = size / resolution;
         m_voxels = new Voxel[resolution * resolution];
         m_voxelMaterials = new Material[m_voxels.Length];
@@ -31,6 +35,12 @@ public class VoxelGrid : MonoBehaviour
                 CreateVoxel(i, x, y);
             }
         }
+
+
+        m_dummyX = new Voxel();
+        m_dummyY = new Voxel();
+        m_dummyT = new Voxel();
+
 
         //offset the grid to center it inside the screen
         Vector3 gridPosition = new Vector3(-0.5f * size, -0.5f * size, 0);
@@ -110,7 +120,16 @@ public class VoxelGrid : MonoBehaviour
         m_triangles.Clear();
         m_mesh.Clear();
 
+        if (m_xNeighbor != null)
+        {
+            m_dummyX.BecomeXDummyOf(m_xNeighbor.m_voxels[0], m_gridSize);
+        }
         TriangulateCellRows();
+
+        if (m_yNeighbor != null)
+        {
+            TriangulateGapRow();
+        }
 
         m_mesh.vertices = m_vertices.ToArray();
         m_mesh.triangles = m_triangles.ToArray();
@@ -129,6 +148,43 @@ public class VoxelGrid : MonoBehaviour
                     m_voxels[i + m_resolution],
                     m_voxels[i + m_resolution + 1]);
             }
+
+            if (m_xNeighbor != null)
+            {
+                //Debug.Log("TriangulateGapCell i:" + i + " y:" + y);
+                TriangulateGapCell(i);
+            }
+        }
+    }
+
+    private void TriangulateGapCell(int i)
+    {
+        Voxel dummySwap = m_dummyT;
+        dummySwap.BecomeXDummyOf(m_xNeighbor.m_voxels[i + 1], m_gridSize);
+        m_dummyT = m_dummyX;
+        m_dummyX = dummySwap;
+        TriangulateCell(m_voxels[i], m_dummyT, m_voxels[i + m_resolution], m_dummyX);
+    }
+
+    private void TriangulateGapRow()
+    {
+        m_dummyY.BecomeYDummyOf(m_yNeighbor.m_voxels[0], m_gridSize);
+        int cells = m_resolution - 1;
+        int offset = cells * m_resolution;
+
+        for (int x = 0; x < cells; x++)
+        {
+            Voxel dummySwap = m_dummyT;
+            dummySwap.BecomeYDummyOf(m_yNeighbor.m_voxels[x + 1], m_gridSize);
+            m_dummyT = m_dummyY;
+            m_dummyY = dummySwap;
+            TriangulateCell(m_voxels[x + offset], m_voxels[x + offset + 1], m_dummyT, m_dummyY);
+        }
+
+        if (m_xNeighbor != null)
+        {
+            m_dummyT.BecomeXYDummyOf(m_xyNeighbor.m_voxels[0], m_gridSize);
+            TriangulateCell(m_voxels[m_voxels.Length - 1], m_dummyX, m_dummyY, m_dummyT);
         }
     }
 
@@ -153,7 +209,7 @@ public class VoxelGrid : MonoBehaviour
         }
 
         switch (cellType)
-        {
+        {                
             case 0:
                 return;
             case 1:
@@ -169,7 +225,7 @@ public class VoxelGrid : MonoBehaviour
                 AddTriangle(c.m_position, c.m_xEdgePosition, a.m_yEdgePosition);
                 break;
             case 5:
-                AddQuad(c.m_position, c.m_xEdgePosition, a.m_xEdgePosition, a.m_xEdgePosition);
+                AddQuad(c.m_position, c.m_xEdgePosition, a.m_xEdgePosition, a.m_position);
                 break;
             case 6:
                 AddTriangle(b.m_position, a.m_xEdgePosition, b.m_yEdgePosition);
@@ -186,13 +242,13 @@ public class VoxelGrid : MonoBehaviour
                 AddTriangle(d.m_position, b.m_yEdgePosition, c.m_xEdgePosition);
                 break;
             case 10:
-                AddQuad(c.m_position, d.m_position, b.m_yEdgePosition, a.m_yEdgePosition);
+                AddQuad(c.m_xEdgePosition, d.m_position, b.m_position, a.m_xEdgePosition);
                 break;
             case 11:
                 AddPentagon(b.m_position, a.m_position, a.m_yEdgePosition, c.m_xEdgePosition, d.m_position);
                 break;
             case 12:
-                AddQuad(c.m_xEdgePosition, d.m_position, b.m_position, a.m_xEdgePosition);
+                AddQuad(c.m_position, d.m_position, b.m_yEdgePosition, a.m_yEdgePosition);
                 break;
             case 13:
                 AddPentagon(c.m_position, d.m_position, b.m_yEdgePosition, a.m_xEdgePosition, a.m_position);
@@ -203,6 +259,8 @@ public class VoxelGrid : MonoBehaviour
             case 15:
                 AddQuad(a.m_position, c.m_position, d.m_position, b.m_position);
 			    break;
+            default:
+                break;
         }
     }
 
