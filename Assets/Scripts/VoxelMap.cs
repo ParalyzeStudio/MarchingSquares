@@ -24,6 +24,8 @@ public class VoxelMap : MonoBehaviour
 		new VoxelStencilCircle()
 	};
 
+    public Transform[] m_stencilVisualizations;
+
     private void Awake()
     {
         m_halfSize = m_size * 0.5f;
@@ -113,16 +115,31 @@ public class VoxelMap : MonoBehaviour
 
     private void Update()
     {
-        if (Input.GetMouseButton(0))
+        Transform visualization = m_stencilVisualizations[m_stencilIndex];
+        RaycastHit hitInfo;
+        if (Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out hitInfo) &&
+            hitInfo.collider.gameObject == gameObject)
         {
-            RaycastHit hitInfo;
-            if (Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out hitInfo))
+            Vector2 center = transform.InverseTransformPoint(hitInfo.point);
+            center.x += m_halfSize;
+            center.y += m_halfSize;
+            center.x = ((int)(center.x / m_voxelSize) + 0.5f) * m_voxelSize;
+            center.y = ((int)(center.y / m_voxelSize) + 0.5f) * m_voxelSize;
+
+            if (Input.GetMouseButton(0))
             {
-                if (hitInfo.collider.gameObject == gameObject)
-                {
-                    EditVoxels(transform.InverseTransformPoint(hitInfo.point));
-                }
+                EditVoxels(transform.InverseTransformPoint(hitInfo.point));
             }
+
+            center.x -= m_halfSize;
+            center.y -= m_halfSize;
+            visualization.localPosition = new Vector3(center.x, center.y, 0);
+            visualization.localScale = new Vector3((m_radiusIndex + 0.5f) * m_voxelSize * 2f, 1, (m_radiusIndex + 0.5f) * m_voxelSize * 2f);
+            visualization.gameObject.SetActive(true);
+        }
+        else
+        {
+            visualization.gameObject.SetActive(false);
         }
     }
 
