@@ -28,6 +28,8 @@ public class VoxelMap : MonoBehaviour
 
     public bool m_snapToGrid;
 
+    public float m_maxFeatureAngle = 135f;
+
     private void Awake()
     {
         m_halfSize = m_size * 0.5f;
@@ -51,7 +53,7 @@ public class VoxelMap : MonoBehaviour
     {
         GameObject chunkObject = Instantiate(m_voxelGridPrefab);
         VoxelGrid chunk = chunkObject.GetComponent<VoxelGrid>();
-        chunk.Initialize(m_voxelResolution, m_chunkSize);
+        chunk.Initialize(m_voxelResolution, m_chunkSize, m_maxFeatureAngle);
         chunk.transform.parent = transform;
         chunk.transform.localPosition = new Vector3(x * m_chunkSize - m_halfSize, y * m_chunkSize - m_halfSize);
         m_chunks[i] = chunk;

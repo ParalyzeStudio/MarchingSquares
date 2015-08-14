@@ -25,9 +25,13 @@ public class VoxelGrid : MonoBehaviour
     private int[] m_rowCacheMax, m_rowCacheMin;
     private int m_edgeCacheMin, m_edgeCacheMax;
 
-    public void Initialize(int resolution, float size)
+    //part3 variables
+    private float m_sharpFeatureLimit;
+
+    public void Initialize(int resolution, float size, float maxFeatureAngle)
     {
         this.m_resolution = resolution;
+        m_sharpFeatureLimit = Mathf.Cos(maxFeatureAngle * Mathf.Deg2Rad);
         m_gridSize = size;
         m_voxelSize = size / resolution;
         m_voxels = new Voxel[resolution * resolution];
