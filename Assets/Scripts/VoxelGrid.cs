@@ -238,62 +238,225 @@ public class VoxelGrid : MonoBehaviour
         {
             cellType |= 8;
         }
+
         switch (cellType)
         {
-            case 0:
-                return;
-            case 1:
-                AddTriangle(m_rowCacheMin[i], m_edgeCacheMin, m_rowCacheMin[i + 1]);
-                break;
-            case 2:
-                AddTriangle(m_rowCacheMin[i + 2], m_rowCacheMin[i + 1], m_edgeCacheMax);
-                break;
-            case 3:
-                AddQuad(m_rowCacheMin[i], m_edgeCacheMin, m_edgeCacheMax, m_rowCacheMin[i + 2]);
-                break;
-            case 4:
-                AddTriangle(m_rowCacheMax[i], m_rowCacheMax[i + 1], m_edgeCacheMin);
-                break;
-            case 5:
-                AddQuad(m_rowCacheMin[i], m_rowCacheMax[i], m_rowCacheMax[i + 1], m_rowCacheMin[i + 1]);
-                break;
-            case 6:
-                AddTriangle(m_rowCacheMin[i + 2], m_rowCacheMin[i + 1], m_edgeCacheMax);
-                AddTriangle(m_rowCacheMax[i], m_rowCacheMax[i + 1], m_edgeCacheMin);
-                break;
-            case 7:
-                AddPentagon(
-                    m_rowCacheMin[i], m_rowCacheMax[i], m_rowCacheMax[i + 1], m_edgeCacheMax, m_rowCacheMin[i + 2]);
-                break;
-            case 8:
-                AddTriangle(m_rowCacheMax[i + 2], m_edgeCacheMax, m_rowCacheMax[i + 1]);
-                break;
-            case 9:
-                AddTriangle(m_rowCacheMin[i], m_edgeCacheMin, m_rowCacheMin[i + 1]);
-                AddTriangle(m_rowCacheMax[i + 2], m_edgeCacheMax, m_rowCacheMax[i + 1]);
-                break;
-            case 10:
-                AddQuad(m_rowCacheMin[i + 1], m_rowCacheMax[i + 1], m_rowCacheMax[i + 2], m_rowCacheMin[i + 2]);
-                break;
-            case 11:
-                AddPentagon(
-                    m_rowCacheMin[i + 2], m_rowCacheMin[i], m_edgeCacheMin, m_rowCacheMax[i + 1], m_rowCacheMax[i + 2]);
-                break;
-            case 12:
-                AddQuad(m_edgeCacheMin, m_rowCacheMax[i], m_rowCacheMax[i + 2], m_edgeCacheMax);
-                break;
-            case 13:
-                AddPentagon(
-                    m_rowCacheMax[i], m_rowCacheMax[i + 2], m_edgeCacheMax, m_rowCacheMin[i + 1], m_rowCacheMin[i]);
-                break;
-            case 14:
-                AddPentagon(
-                    m_rowCacheMax[i + 2], m_rowCacheMin[i + 2], m_rowCacheMin[i + 1], m_edgeCacheMin, m_rowCacheMax[i]);
-                break;
-            case 15:
-                AddQuad(m_rowCacheMin[i], m_rowCacheMax[i], m_rowCacheMax[i + 2], m_rowCacheMin[i + 2]);
-                break;
+            case 0: TriangulateCase0(i, a, b, c, d); break;
+            case 1: TriangulateCase1(i, a, b, c, d); break;
+            case 2: TriangulateCase2(i, a, b, c, d); break;
+            case 3: TriangulateCase3(i, a, b, c, d); break;
+            case 4: TriangulateCase4(i, a, b, c, d); break;
+            case 5: TriangulateCase5(i, a, b, c, d); break;
+            case 6: TriangulateCase6(i, a, b, c, d); break;
+            case 7: TriangulateCase7(i, a, b, c, d); break;
+            case 8: TriangulateCase8(i, a, b, c, d); break;
+            case 9: TriangulateCase9(i, a, b, c, d); break;
+            case 10: TriangulateCase10(i, a, b, c, d); break;
+            case 11: TriangulateCase11(i, a, b, c, d); break;
+            case 12: TriangulateCase12(i, a, b, c, d); break;
+            case 13: TriangulateCase13(i, a, b, c, d); break;
+            case 14: TriangulateCase14(i, a, b, c, d); break;
+            case 15: TriangulateCase15(i, a, b, c, d); break;
         }
+
+        //switch (cellType)
+        //{
+        //    case 0:
+        //        return;
+        //    case 1:
+        //        AddTriangle(m_rowCacheMin[i], m_edgeCacheMin, m_rowCacheMin[i + 1]);
+        //        break;
+        //    case 2:
+        //        AddTriangle(m_rowCacheMin[i + 2], m_rowCacheMin[i + 1], m_edgeCacheMax);
+        //        break;
+        //    case 3:
+        //        AddQuad(m_rowCacheMin[i], m_edgeCacheMin, m_edgeCacheMax, m_rowCacheMin[i + 2]);
+        //        break;
+        //    case 4:
+        //        AddTriangle(m_rowCacheMax[i], m_rowCacheMax[i + 1], m_edgeCacheMin);
+        //        break;
+        //    case 5:
+        //        AddQuad(m_rowCacheMin[i], m_rowCacheMax[i], m_rowCacheMax[i + 1], m_rowCacheMin[i + 1]);
+        //        break;
+        //    case 6:
+        //        AddTriangle(m_rowCacheMin[i + 2], m_rowCacheMin[i + 1], m_edgeCacheMax);
+        //        AddTriangle(m_rowCacheMax[i], m_rowCacheMax[i + 1], m_edgeCacheMin);
+        //        break;
+        //    case 7:
+        //        AddPentagon(
+        //            m_rowCacheMin[i], m_rowCacheMax[i], m_rowCacheMax[i + 1], m_edgeCacheMax, m_rowCacheMin[i + 2]);
+        //        break;
+        //    case 8:
+        //        AddTriangle(m_rowCacheMax[i + 2], m_edgeCacheMax, m_rowCacheMax[i + 1]);
+        //        break;
+        //    case 9:
+        //        AddTriangle(m_rowCacheMin[i], m_edgeCacheMin, m_rowCacheMin[i + 1]);
+        //        AddTriangle(m_rowCacheMax[i + 2], m_edgeCacheMax, m_rowCacheMax[i + 1]);
+        //        break;
+        //    case 10:
+        //        AddQuad(m_rowCacheMin[i + 1], m_rowCacheMax[i + 1], m_rowCacheMax[i + 2], m_rowCacheMin[i + 2]);
+        //        break;
+        //    case 11:
+        //        AddPentagon(
+        //            m_rowCacheMin[i + 2], m_rowCacheMin[i], m_edgeCacheMin, m_rowCacheMax[i + 1], m_rowCacheMax[i + 2]);
+        //        break;
+        //    case 12:
+        //        AddQuad(m_edgeCacheMin, m_rowCacheMax[i], m_rowCacheMax[i + 2], m_edgeCacheMax);
+        //        break;
+        //    case 13:
+        //        AddPentagon(
+        //            m_rowCacheMax[i], m_rowCacheMax[i + 2], m_edgeCacheMax, m_rowCacheMin[i + 1], m_rowCacheMin[i]);
+        //        break;
+        //    case 14:
+        //        AddPentagon(
+        //            m_rowCacheMax[i + 2], m_rowCacheMin[i + 2], m_rowCacheMin[i + 1], m_edgeCacheMin, m_rowCacheMax[i]);
+        //        break;
+        //    case 15:
+        //        AddQuad(m_rowCacheMin[i], m_rowCacheMax[i], m_rowCacheMax[i + 2], m_rowCacheMin[i + 2]);
+        //        break;
+        //}
+    }
+
+    private void TriangulateCase15(int i, Voxel a, Voxel b, Voxel c, Voxel d)
+    {
+        AddQuadABCD(i);
+    }
+
+    private void TriangulateCase1(int i, Voxel a, Voxel b, Voxel c, Voxel d)
+    {
+        AddTriangleA(i);
+    }
+
+    private void TriangulateCase2(int i, Voxel a, Voxel b, Voxel c, Voxel d)
+    {
+        AddTriangleB(i);
+    }
+
+    private void TriangulateCase4(int i, Voxel a, Voxel b, Voxel c, Voxel d)
+    {
+        AddTriangleC(i);
+    }
+
+    private void TriangulateCase8(int i, Voxel a, Voxel b, Voxel c, Voxel d)
+    {
+        AddTriangleD(i);
+    }
+
+    private void TriangulateCase7(int i, Voxel a, Voxel b, Voxel c, Voxel d)
+    {
+        AddPentagonABC(i);
+    }
+
+    private void TriangulateCase11(int i, Voxel a, Voxel b, Voxel c, Voxel d)
+    {
+        AddPentagonABD(i);
+    }
+
+    private void TriangulateCase13(int i, Voxel a, Voxel b, Voxel c, Voxel d)
+    {
+        AddPentagonACD(i);
+    }
+
+    private void TriangulateCase14(int i, Voxel a, Voxel b, Voxel c, Voxel d)
+    {
+        AddPentagonBCD(i);
+    }
+
+    private void TriangulateCase3(int i, Voxel a, Voxel b, Voxel c, Voxel d)
+    {
+        AddQuadAB(i);
+    }
+
+    private void TriangulateCase5(int i, Voxel a, Voxel b, Voxel c, Voxel d)
+    {
+        AddQuadAC(i);
+    }
+
+    private void TriangulateCase10(int i, Voxel a, Voxel b, Voxel c, Voxel d)
+    {
+        AddQuadBD(i);
+    }
+
+    private void TriangulateCase12(int i, Voxel a, Voxel b, Voxel c, Voxel d)
+    {
+        AddQuadCD(i);
+    }
+
+    private void TriangulateCase6(int i, Voxel a, Voxel b, Voxel c, Voxel d)
+    {
+        AddTriangleB(i);
+        AddTriangleC(i);
+    }
+
+    private void TriangulateCase9(int i, Voxel a, Voxel b, Voxel c, Voxel d)
+    {
+        AddTriangleA(i);
+        AddTriangleD(i);
+    }
+
+    private void AddQuadABCD(int i)
+    {
+        AddQuad(m_rowCacheMin[i], m_rowCacheMax[i], m_rowCacheMax[i + 2], m_rowCacheMin[i + 2]);
+    }
+
+    private void AddTriangleA(int i)
+    {
+        AddTriangle(m_rowCacheMin[i], m_edgeCacheMin, m_rowCacheMin[i + 1]);
+    }
+
+    private void AddTriangleB(int i)
+    {
+        AddTriangle(m_rowCacheMin[i + 2], m_rowCacheMin[i + 1], m_edgeCacheMax);
+    }
+
+    private void AddTriangleC(int i)
+    {
+        AddTriangle(m_rowCacheMax[i], m_rowCacheMax[i + 1], m_edgeCacheMin);
+    }
+
+    private void AddTriangleD(int i)
+    {
+        AddTriangle(m_rowCacheMax[i + 2], m_edgeCacheMax, m_rowCacheMax[i + 1]);
+    }
+
+    private void AddPentagonABC(int i)
+    {
+        AddPentagon(m_rowCacheMin[i], m_rowCacheMax[i], m_rowCacheMax[i + 1], m_edgeCacheMax, m_rowCacheMin[i + 2]);
+    }
+
+    private void AddPentagonABD(int i)
+    {
+        AddPentagon(m_rowCacheMin[i + 2], m_rowCacheMin[i], m_edgeCacheMin, m_rowCacheMax[i + 1], m_rowCacheMax[i + 2]);
+    }
+
+    private void AddPentagonACD(int i)
+    {
+        AddPentagon(m_rowCacheMax[i], m_rowCacheMax[i + 2], m_edgeCacheMax, m_rowCacheMin[i + 1], m_rowCacheMin[i]);
+    }
+
+    private void AddPentagonBCD(int i)
+    {
+        AddPentagon(m_rowCacheMax[i + 2], m_rowCacheMin[i + 2], m_rowCacheMin[i + 1], m_edgeCacheMin, m_rowCacheMax[i]);
+    }
+
+    private void AddQuadAB(int i)
+    {
+        AddQuad(m_rowCacheMin[i], m_edgeCacheMin, m_edgeCacheMax, m_rowCacheMin[i + 2]);
+    }
+
+    private void AddQuadAC(int i)
+    {
+        AddQuad(m_rowCacheMin[i], m_rowCacheMax[i], m_rowCacheMax[i + 1], m_rowCacheMin[i + 1]);
+    }
+
+    private void AddQuadBD(int i)
+    {
+        AddQuad(m_rowCacheMin[i + 1], m_rowCacheMax[i + 1], m_rowCacheMax[i + 2], m_rowCacheMin[i + 2]);
+    }
+
+    private void AddQuadCD(int i)
+    {
+        AddQuad(m_edgeCacheMin, m_rowCacheMax[i], m_rowCacheMax[i + 2], m_edgeCacheMax);
     }
 
     private void AddTriangle(int a, int b, int c)
@@ -325,8 +488,7 @@ public class VoxelGrid : MonoBehaviour
         m_triangles.Add(d);
         m_triangles.Add(e);
     }
-
-
+    
     /**
      * part 2 methods
      * **/
