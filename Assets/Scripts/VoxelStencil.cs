@@ -57,4 +57,65 @@ public class VoxelStencil
         m_centerX = x;
         m_centerY = y;
     }
+
+    public void SetHorizontalCrossing(Voxel xMin, Voxel xMax)
+    {
+        if (xMin.m_state != xMax.m_state)
+        {
+            FindHorizontalCrossing(xMin, xMax);
+        }
+    }
+
+    public void SetVerticalCrossing(Voxel yMin, Voxel yMax)
+    {
+        if (yMin.m_state != yMax.m_state)
+        {
+            FindVerticalCrossing(yMin, yMax);
+        }
+    }
+
+    protected virtual void FindHorizontalCrossing(Voxel xMin, Voxel xMax)
+    {
+        if (xMin.m_position.y < YStart || xMin.m_position.y > YEnd)
+        {
+            return;
+        }
+
+        if (xMin.m_state == m_fillType)
+        {
+            if (xMin.m_position.x <= XEnd && xMax.m_position.x >= XEnd)
+            {
+                xMin.m_xEdge = XEnd;
+            }
+        }
+        else if (xMax.m_state == m_fillType)
+        {
+            if (xMin.m_position.x <= XStart && xMax.m_position.x >= XStart)
+            {
+                xMin.m_xEdge = XStart;
+            }
+        }
+    }
+
+    protected virtual void FindVerticalCrossing(Voxel yMin, Voxel yMax)
+    {
+        if (yMin.m_position.x < XStart || yMin.m_position.x > XEnd)
+        {
+            return;
+        }
+        if (yMin.m_state == m_fillType)
+        {
+            if (yMin.m_position.y <= YEnd && yMax.m_position.y >= YEnd)
+            {
+                yMin.m_yEdge = YEnd;
+            }
+        }
+        else if (yMax.m_state == m_fillType)
+        {
+            if (yMin.m_position.y <= YStart && yMax.m_position.y >= YStart)
+            {
+                yMin.m_yEdge = YStart;
+            }
+        }
+    }
 }
