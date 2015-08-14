@@ -96,6 +96,7 @@ public class VoxelStencil
                 if (xMin.m_xEdge == float.MinValue || xMin.m_xEdge < XEnd)
                 {
                     xMin.m_xEdge = XEnd;
+                    xMin.m_xNormal = new Vector2(m_fillType ? 1f : -1f, 0f);
                 }
             }
         }
@@ -106,6 +107,7 @@ public class VoxelStencil
                 if (xMin.m_xEdge == float.MinValue || xMin.m_xEdge > XStart)
                 {
                     xMin.m_xEdge = XStart;
+                    xMin.m_xNormal = new Vector2(m_fillType ? -1f : 1f, 0f);
                 }
             }
         }
@@ -124,6 +126,7 @@ public class VoxelStencil
                 if (yMin.m_yEdge == float.MinValue || yMin.m_yEdge < YEnd)
                 {
                     yMin.m_yEdge = YEnd;
+                    yMin.m_yNormal = new Vector2(0f, m_fillType ? 1f : -1f);
                 }
             }
         }
@@ -134,6 +137,7 @@ public class VoxelStencil
                 if (yMin.m_yEdge == float.MinValue || yMin.m_yEdge > YStart)
                 {
                     yMin.m_yEdge = YStart;
+                    yMin.m_yNormal = new Vector2(0f, m_fillType ? -1f : 1f);
                 }
             }
         }
