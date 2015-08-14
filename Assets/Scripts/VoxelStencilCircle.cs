@@ -2,20 +2,21 @@
 
 public class VoxelStencilCircle : VoxelStencil {
 	
-	private int m_sqrRadius;
-	
-	public override void Initialize (bool fillType, int radius) {
+	private float m_sqrRadius;
+
+    public override void Initialize(bool fillType, float radius)
+    {
 		base.Initialize (fillType, radius);
         m_sqrRadius = radius * radius;
 	}
 	
-	public override bool Apply (int x, int y, bool voxel) {
-		x -= m_centerX;
-		y -= m_centerY;
+	public override void Apply (Voxel voxel)
+    {
+        float x = voxel.m_position.x - m_centerX;
+        float y = voxel.m_position.y - m_centerY;
         if (x * x + y * y <= m_sqrRadius)
         {
-			return m_fillType;
-		}
-		return voxel;
+            voxel.m_state = m_fillType;
+        }
 	}
 }

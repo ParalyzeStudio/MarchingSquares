@@ -3,9 +3,9 @@
 public class VoxelStencil
 {
     protected bool m_fillType;
-    protected int m_centerX, m_centerY, m_radius;
+    protected float m_centerX, m_centerY, m_radius;
 
-    public int XStart
+    public float XStart
     {
         get
         {
@@ -13,7 +13,7 @@ public class VoxelStencil
         }
     }
 
-    public int XEnd
+    public float XEnd
     {
         get
         {
@@ -21,7 +21,7 @@ public class VoxelStencil
         }
     }
 
-    public int YStart
+    public float YStart
     {
         get
         {
@@ -29,7 +29,7 @@ public class VoxelStencil
         }
     }
 
-    public int YEnd
+    public float YEnd
     {
         get
         {
@@ -37,18 +37,22 @@ public class VoxelStencil
         }
     }
 
-    public virtual void Initialize(bool fillType, int radius)
+    public virtual void Initialize(bool fillType, float radius)
     {
         this.m_fillType = fillType;
         this.m_radius = radius;
     }
 
-    public virtual bool Apply(int x, int y, bool voxel)
+    public virtual void Apply(Voxel voxel)
     {
-        return m_fillType;
+        Vector2 p = voxel.m_position;
+        if (p.x >= XStart && p.x <= XEnd && p.y >= YStart && p.y <= YEnd)
+        {
+            voxel.m_state = m_fillType;
+        }
     }
 
-    public virtual void SetCenter(int x, int y)
+    public virtual void SetCenter(float x, float y)
     {
         m_centerX = x;
         m_centerY = y;
