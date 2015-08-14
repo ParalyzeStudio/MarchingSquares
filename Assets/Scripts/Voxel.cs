@@ -10,6 +10,8 @@ public class Voxel
 
     public float m_xEdge, m_yEdge;
 
+    public Vector2 m_xNormal, m_yNormal;
+
     public Voxel() 
     {
         
@@ -31,6 +33,7 @@ public class Voxel
         m_position.x += offset;
         m_xEdge = voxel.m_xEdge + offset;
         m_yEdge = voxel.m_yEdge;
+        m_yNormal = voxel.m_yNormal;
     }
 
     public void BecomeYDummyOf(Voxel voxel, float offset)
@@ -40,6 +43,7 @@ public class Voxel
         m_position.y += offset;
         m_xEdge = voxel.m_xEdge;
         m_yEdge = voxel.m_yEdge + offset;
+        m_xNormal = voxel.m_xNormal;
     }
 
     public void BecomeXYDummyOf(Voxel voxel, float offset)
