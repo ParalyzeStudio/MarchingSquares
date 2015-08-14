@@ -10,15 +10,18 @@ public class Voxel
 
     public float m_xEdge, m_yEdge;
 
-    public Voxel() { }
+    public Voxel() 
+    {
+        
+    }
 
     public Voxel(int x, int y, float size)
     {
         m_position.x = (x + 0.5f) * size;
         m_position.y = (y + 0.5f) * size;
 
-        m_xEdge = m_position.x + 0.5f * size;
-        m_yEdge = m_position.y + 0.5f * size;
+        m_xEdge = float.MinValue;
+        m_yEdge = float.MinValue;
     }
 
     public void BecomeXDummyOf(Voxel voxel, float offset)
