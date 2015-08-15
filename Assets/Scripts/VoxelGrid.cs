@@ -258,63 +258,10 @@ public class VoxelGrid : MonoBehaviour
             case 14: TriangulateCase14(i, a, b, c, d); break;
             case 15: TriangulateCase15(i, a, b, c, d); break;
         }
+    }
 
-        //switch (cellType)
-        //{
-        //    case 0:
-        //        return;
-        //    case 1:
-        //        AddTriangle(m_rowCacheMin[i], m_edgeCacheMin, m_rowCacheMin[i + 1]);
-        //        break;
-        //    case 2:
-        //        AddTriangle(m_rowCacheMin[i + 2], m_rowCacheMin[i + 1], m_edgeCacheMax);
-        //        break;
-        //    case 3:
-        //        AddQuad(m_rowCacheMin[i], m_edgeCacheMin, m_edgeCacheMax, m_rowCacheMin[i + 2]);
-        //        break;
-        //    case 4:
-        //        AddTriangle(m_rowCacheMax[i], m_rowCacheMax[i + 1], m_edgeCacheMin);
-        //        break;
-        //    case 5:
-        //        AddQuad(m_rowCacheMin[i], m_rowCacheMax[i], m_rowCacheMax[i + 1], m_rowCacheMin[i + 1]);
-        //        break;
-        //    case 6:
-        //        AddTriangle(m_rowCacheMin[i + 2], m_rowCacheMin[i + 1], m_edgeCacheMax);
-        //        AddTriangle(m_rowCacheMax[i], m_rowCacheMax[i + 1], m_edgeCacheMin);
-        //        break;
-        //    case 7:
-        //        AddPentagon(
-        //            m_rowCacheMin[i], m_rowCacheMax[i], m_rowCacheMax[i + 1], m_edgeCacheMax, m_rowCacheMin[i + 2]);
-        //        break;
-        //    case 8:
-        //        AddTriangle(m_rowCacheMax[i + 2], m_edgeCacheMax, m_rowCacheMax[i + 1]);
-        //        break;
-        //    case 9:
-        //        AddTriangle(m_rowCacheMin[i], m_edgeCacheMin, m_rowCacheMin[i + 1]);
-        //        AddTriangle(m_rowCacheMax[i + 2], m_edgeCacheMax, m_rowCacheMax[i + 1]);
-        //        break;
-        //    case 10:
-        //        AddQuad(m_rowCacheMin[i + 1], m_rowCacheMax[i + 1], m_rowCacheMax[i + 2], m_rowCacheMin[i + 2]);
-        //        break;
-        //    case 11:
-        //        AddPentagon(
-        //            m_rowCacheMin[i + 2], m_rowCacheMin[i], m_edgeCacheMin, m_rowCacheMax[i + 1], m_rowCacheMax[i + 2]);
-        //        break;
-        //    case 12:
-        //        AddQuad(m_edgeCacheMin, m_rowCacheMax[i], m_rowCacheMax[i + 2], m_edgeCacheMax);
-        //        break;
-        //    case 13:
-        //        AddPentagon(
-        //            m_rowCacheMax[i], m_rowCacheMax[i + 2], m_edgeCacheMax, m_rowCacheMin[i + 1], m_rowCacheMin[i]);
-        //        break;
-        //    case 14:
-        //        AddPentagon(
-        //            m_rowCacheMax[i + 2], m_rowCacheMin[i + 2], m_rowCacheMin[i + 1], m_edgeCacheMin, m_rowCacheMax[i]);
-        //        break;
-        //    case 15:
-        //        AddQuad(m_rowCacheMin[i], m_rowCacheMax[i], m_rowCacheMax[i + 2], m_rowCacheMin[i + 2]);
-        //        break;
-        //}
+    private void TriangulateCase0(int i, Voxel a, Voxel b, Voxel c, Voxel d)
+    {
     }
 
     private void TriangulateCase15(int i, Voxel a, Voxel b, Voxel c, Voxel d)
@@ -324,6 +271,17 @@ public class VoxelGrid : MonoBehaviour
 
     private void TriangulateCase1(int i, Voxel a, Voxel b, Voxel c, Voxel d)
     {
+        Vector2 n1 = a.m_xNormal;
+        Vector2 n2 = a.m_yNormal;
+        if (IsSharpFeature(n1, n2))
+        {
+            Vector2 point = ComputeIntersection(a.XEdgePoint, n1, a.YEdgePoint, n2);
+            if (ClampToCellMaxMax(ref point, a, d))
+            {
+                AddQuadA(i, point);
+                return;
+            }
+        }
         AddTriangleA(i);
     }
 
@@ -457,6 +415,12 @@ public class VoxelGrid : MonoBehaviour
     private void AddQuadCD(int i)
     {
         AddQuad(m_edgeCacheMin, m_rowCacheMax[i], m_rowCacheMax[i + 2], m_edgeCacheMax);
+    }
+
+    private void AddQuadA(int i, Vector2 extraVertex)
+    {
+        AddQuad(m_vertices.Count, m_rowCacheMin[i + 1], m_rowCacheMin[i], m_edgeCacheMin);
+        m_vertices.Add(extraVertex);
     }
 
     private void AddTriangle(int a, int b, int c)
@@ -630,5 +594,35 @@ public class VoxelGrid : MonoBehaviour
                 stencil.SetHorizontalCrossing(b, m_dummyX);
             }
         }
+    }
+
+    private bool IsSharpFeature(Vector2 n1, Vector2 n2)
+    {
+        float dot = Vector2.Dot(n1, -n2);
+        return dot >= m_sharpFeatureLimit && dot < 0.9999f;
+    }
+
+    private static Vector2 ComputeIntersection(Vector2 p1, Vector2 n1, Vector2 p2, Vector2 n2)
+    {
+        Vector2 u2 = new Vector2(n2.y, -n2.x);
+        float d2 = -Vector2.Dot(n1, p2 - p1) / Vector2.Dot(n1, u2);
+        return p2 + d2 * u2;
+    }
+
+    private static bool ClampToCellMaxMax(ref Vector2 point, Voxel min, Voxel max)
+    {
+        if (point.x < min.m_position.x || point.y < min.m_position.y)
+        {
+            return false;
+        }
+        if (point.x > max.m_position.x)
+        {
+            point.x = max.m_position.x;
+        }
+        if (point.y > max.m_position.y)
+        {
+            point.y = max.m_position.y;
+        }
+        return true;
     }
 }

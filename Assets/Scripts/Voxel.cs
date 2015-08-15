@@ -55,4 +55,20 @@ public class Voxel
         m_xEdge = voxel.m_xEdge + offset;
         m_yEdge = voxel.m_yEdge + offset;
     }
+
+    public Vector2 XEdgePoint
+    {
+        get
+        {
+            return new Vector2(m_xEdge, m_position.y);
+        }
+    }
+
+    public Vector2 YEdgePoint
+    {
+        get
+        {
+            return new Vector2(m_position.x, m_yEdge);
+        }
+    }
 }
