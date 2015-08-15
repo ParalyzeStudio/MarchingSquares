@@ -287,38 +287,106 @@ public class VoxelGrid : MonoBehaviour
 
     private void TriangulateCase2(int i, Voxel a, Voxel b, Voxel c, Voxel d)
     {
+        Vector2 n1 = a.m_xNormal;
+        Vector2 n2 = b.m_yNormal;
+        if (IsSharpFeature(n1, n2))
+        {
+            Vector2 point = ComputeIntersection(a.XEdgePoint, n1, b.YEdgePoint, n2);
+            if (ClampToCellMinMax(ref point, a, d))
+            {
+                AddQuadB(i, point);
+                return;
+            }
+        }
         AddTriangleB(i);
     }
 
     private void TriangulateCase4(int i, Voxel a, Voxel b, Voxel c, Voxel d)
     {
+        Vector2 n1 = c.m_xNormal;
+        Vector2 n2 = a.m_yNormal;
+        if (IsSharpFeature(n1, n2))
+        {
+            Vector2 point = ComputeIntersection(c.XEdgePoint, n1, a.YEdgePoint, n2);
+            if (ClampToCellMaxMin(ref point, a, d))
+            {
+                AddQuadC(i, point);
+                return;
+            }
+        }
         AddTriangleC(i);
     }
 
     private void TriangulateCase8(int i, Voxel a, Voxel b, Voxel c, Voxel d)
     {
+        Vector2 n1 = c.m_xNormal;
+        Vector2 n2 = b.m_yNormal;
+        if (IsSharpFeature(n1, n2))
+        {
+            Vector2 point = ComputeIntersection(c.XEdgePoint, n1, b.YEdgePoint, n2);
+            if (ClampToCellMinMin(ref point, a, d))
+            {
+                AddQuadD(i, point);
+                return;
+            }
+        }
         AddTriangleD(i);
     }
 
     private void TriangulateCase7(int i, Voxel a, Voxel b, Voxel c, Voxel d)
     {
+        Vector2 n1 = c.m_xNormal;
+        Vector2 n2 = b.m_yNormal;
+        if (IsSharpFeature(n1, n2))
+        {
+            Vector2 point = ComputeIntersection(c.XEdgePoint, n1, b.YEdgePoint, n2);
+            if (IsInsideCell(point, a, d))
+            {
+                AddHexagonABC(i, point);
+                return;
+            }
+        }
         AddPentagonABC(i);
     }
 
-    private void TriangulateCase11(int i, Voxel a, Voxel b, Voxel c, Voxel d)
-    {
-        AddPentagonABD(i);
-    }
+    private void TriangulateCase11(int i, Voxel a, Voxel b, Voxel c, Voxel d) {
+		Vector2 n1 = c.m_xNormal;
+		Vector2 n2 = a.m_yNormal;
+		if (IsSharpFeature(n1, n2)) {
+			Vector2 point = ComputeIntersection(c.XEdgePoint, n1, a.YEdgePoint, n2);
+			if (IsInsideCell(point, a, d)) {
+				AddHexagonABD(i, point);
+				return;
+			}
+		}
+		AddPentagonABD(i);
+	}
 
-    private void TriangulateCase13(int i, Voxel a, Voxel b, Voxel c, Voxel d)
-    {
-        AddPentagonACD(i);
-    }
+    private void TriangulateCase13(int i, Voxel a, Voxel b, Voxel c, Voxel d) {
+		Vector2 n1 = a.m_xNormal;
+		Vector2 n2 = b.m_yNormal;
+		if (IsSharpFeature(n1, n2)) {
+			Vector2 point = ComputeIntersection(a.XEdgePoint, n1, b.YEdgePoint, n2);
+			if (IsInsideCell(point, a, d)) {
+				AddHexagonACD(i, point);
+				return;
+			}
+		}
+		AddPentagonACD(i);
+	}
 
-    private void TriangulateCase14(int i, Voxel a, Voxel b, Voxel c, Voxel d)
-    {
-        AddPentagonBCD(i);
-    }
+    private void TriangulateCase14(int i, Voxel a, Voxel b, Voxel c, Voxel d) {
+		Vector2 n1 = a.m_xNormal;
+		Vector2 n2 = a.m_yNormal;
+		if (IsSharpFeature(n1, n2)) {
+			Vector2 point = ComputeIntersection(a.XEdgePoint, n1, a.YEdgePoint, n2);
+			if (IsInsideCell(point, a, d)) {
+				AddHexagonBCD(i, point);
+				return;
+			}
+		}
+		AddPentagonBCD(i);
+	}
 
     private void TriangulateCase3(int i, Voxel a, Voxel b, Voxel c, Voxel d)
     {
@@ -423,6 +491,56 @@ public class VoxelGrid : MonoBehaviour
         m_vertices.Add(extraVertex);
     }
 
+    private void AddQuadB(int i, Vector2 extraVertex)
+    {
+        AddQuad(m_vertices.Count, m_edgeCacheMax, m_rowCacheMin[i + 2], m_rowCacheMin[i + 1]);
+        m_vertices.Add(extraVertex);
+    }
+
+    private void AddQuadC(int i, Vector2 extraVertex)
+    {
+        AddQuad(m_vertices.Count, m_edgeCacheMin, m_rowCacheMax[i], m_rowCacheMax[i + 1]);
+        m_vertices.Add(extraVertex);
+    }
+
+    private void AddQuadD(int i, Vector2 extraVertex)
+    {
+        AddQuad(m_vertices.Count, m_rowCacheMax[i + 1], m_rowCacheMax[i + 2], m_edgeCacheMax);
+        m_vertices.Add(extraVertex);
+    }
+
+    private void AddHexagonABC(int i, Vector2 extraVertex)
+    {
+        AddHexagon(
+            m_vertices.Count, m_edgeCacheMax, m_rowCacheMin[i + 2],
+            m_rowCacheMin[i], m_rowCacheMax[i], m_rowCacheMax[i + 1]);
+        m_vertices.Add(extraVertex);
+    }
+
+    private void AddHexagonABD(int i, Vector2 extraVertex)
+    {
+        AddHexagon(
+            m_vertices.Count, m_rowCacheMax[i + 1], m_rowCacheMax[i + 2],
+            m_rowCacheMin[i + 2], m_rowCacheMin[i], m_edgeCacheMin);
+        m_vertices.Add(extraVertex);
+    }
+
+    private void AddHexagonACD(int i, Vector2 extraVertex)
+    {
+        AddHexagon(
+            m_vertices.Count, m_rowCacheMin[i + 1], m_rowCacheMin[i],
+            m_rowCacheMax[i], m_rowCacheMax[i + 2], m_edgeCacheMax);
+        m_vertices.Add(extraVertex);
+    }
+
+    private void AddHexagonBCD(int i, Vector2 extraVertex)
+    {
+        AddHexagon(
+            m_vertices.Count, m_edgeCacheMin, m_rowCacheMax[i],
+            m_rowCacheMax[i + 2], m_rowCacheMin[i + 2], m_rowCacheMin[i + 1]);
+        m_vertices.Add(extraVertex);
+    }
+
     private void AddTriangle(int a, int b, int c)
     {
         m_triangles.Add(a);
@@ -451,6 +569,22 @@ public class VoxelGrid : MonoBehaviour
         m_triangles.Add(a);
         m_triangles.Add(d);
         m_triangles.Add(e);
+    }
+
+    private void AddHexagon(int a, int b, int c, int d, int e, int f)
+    {
+        m_triangles.Add(a);
+        m_triangles.Add(b);
+        m_triangles.Add(c);
+        m_triangles.Add(a);
+        m_triangles.Add(c);
+        m_triangles.Add(d);
+        m_triangles.Add(a);
+        m_triangles.Add(d);
+        m_triangles.Add(e);
+        m_triangles.Add(a);
+        m_triangles.Add(e);
+        m_triangles.Add(f);
     }
     
     /**
@@ -624,5 +758,63 @@ public class VoxelGrid : MonoBehaviour
             point.y = max.m_position.y;
         }
         return true;
+    }
+
+    private static bool ClampToCellMinMin(ref Vector2 point, Voxel min, Voxel max)
+    {
+        if (point.x > max.m_position.x || point.y > max.m_position.y)
+        {
+            return false;
+        }
+        if (point.x < min.m_position.x)
+        {
+            point.x = min.m_position.x;
+        }
+        if (point.y < min.m_position.y)
+        {
+            point.y = min.m_position.y;
+        }
+        return true;
+    }
+
+    private static bool ClampToCellMinMax(ref Vector2 point, Voxel min, Voxel max)
+    {
+        if (point.x > max.m_position.x || point.y < min.m_position.y)
+        {
+            return false;
+        }
+        if (point.x < min.m_position.x)
+        {
+            point.x = min.m_position.x;
+        }
+        if (point.y > max.m_position.y)
+        {
+            point.y = max.m_position.y;
+        }
+        return true;
+    }
+
+    private static bool ClampToCellMaxMin(ref Vector2 point, Voxel min, Voxel max)
+    {
+        if (point.x < min.m_position.x || point.y > max.m_position.y)
+        {
+            return false;
+        }
+        if (point.x > max.m_position.x)
+        {
+            point.x = max.m_position.x;
+        }
+        if (point.y < min.m_position.y)
+        {
+            point.y = min.m_position.y;
+        }
+        return true;
+    }
+
+    private static bool IsInsideCell(Vector2 point, Voxel min, Voxel max)
+    {
+        return
+            point.x > min.m_position.x && point.y > min.m_position.y &&
+            point.x < max.m_position.x && point.y < max.m_position.y;
     }
 }
