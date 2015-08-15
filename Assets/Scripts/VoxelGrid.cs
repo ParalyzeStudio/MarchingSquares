@@ -390,21 +390,65 @@ public class VoxelGrid : MonoBehaviour
 
     private void TriangulateCase3(int i, Voxel a, Voxel b, Voxel c, Voxel d)
     {
+        Vector2 n1 = a.m_yNormal;
+        Vector2 n2 = b.m_yNormal;
+        if (IsSharpFeature(n1, n2))
+        {
+            Vector2 point = ComputeIntersection(a.YEdgePoint, n1, b.YEdgePoint, n2);
+            if (IsInsideCell(point, a, d))
+            {
+                AddPentagonAB(i, point);
+                return;
+            }
+        }
         AddQuadAB(i);
     }
 
     private void TriangulateCase5(int i, Voxel a, Voxel b, Voxel c, Voxel d)
     {
+        Vector2 n1 = a.m_xNormal;
+        Vector2 n2 = c.m_xNormal;
+        if (IsSharpFeature(n1, n2))
+        {
+            Vector2 point = ComputeIntersection(a.XEdgePoint, n1, c.XEdgePoint, n2);
+            if (IsInsideCell(point, a, d))
+            {
+                AddPentagonAC(i, point);
+                return;
+            }
+        }
         AddQuadAC(i);
     }
 
     private void TriangulateCase10(int i, Voxel a, Voxel b, Voxel c, Voxel d)
     {
+        Vector2 n1 = a.m_xNormal;
+        Vector2 n2 = c.m_xNormal;
+        if (IsSharpFeature(n1, n2))
+        {
+            Vector2 point = ComputeIntersection(a.XEdgePoint, n1, c.XEdgePoint, n2);
+            if (IsInsideCell(point, a, d))
+            {
+                AddPentagonBD(i, point);
+                return;
+            }
+        }
         AddQuadBD(i);
     }
 
     private void TriangulateCase12(int i, Voxel a, Voxel b, Voxel c, Voxel d)
     {
+        Vector2 n1 = a.m_yNormal;
+        Vector2 n2 = b.m_yNormal;
+        if (IsSharpFeature(n1, n2))
+        {
+            Vector2 point = ComputeIntersection(a.YEdgePoint, n1, b.YEdgePoint, n2);
+            if (IsInsideCell(point, a, d))
+            {
+                AddPentagonCD(i, point);
+                return;
+            }
+        }
         AddQuadCD(i);
     }
 
@@ -538,6 +582,31 @@ public class VoxelGrid : MonoBehaviour
         AddHexagon(
             m_vertices.Count, m_edgeCacheMin, m_rowCacheMax[i],
             m_rowCacheMax[i + 2], m_rowCacheMin[i + 2], m_rowCacheMin[i + 1]);
+        m_vertices.Add(extraVertex);
+    }
+
+    private void AddPentagonAB(int i, Vector2 extraVertex)
+    {
+        AddPentagon(m_vertices.Count, m_edgeCacheMax, m_rowCacheMin[i + 2], m_rowCacheMin[i], m_edgeCacheMin);
+        m_vertices.Add(extraVertex);
+    }
+
+    private void AddPentagonAC(int i, Vector2 extraVertex)
+    {
+        AddPentagon(m_vertices.Count, m_rowCacheMin[i + 1], m_rowCacheMin[i], m_rowCacheMax[i], m_rowCacheMax[i + 1]);
+        m_vertices.Add(extraVertex);
+    }
+
+    private void AddPentagonBD(int i, Vector2 extraVertex)
+    {
+        AddPentagon(
+            m_vertices.Count, m_rowCacheMax[i + 1], m_rowCacheMax[i + 2], m_rowCacheMin[i + 2], m_rowCacheMin[i + 1]);
+        m_vertices.Add(extraVertex);
+    }
+
+    private void AddPentagonCD(int i, Vector2 extraVertex)
+    {
+        AddPentagon(m_vertices.Count, m_edgeCacheMin, m_rowCacheMax[i], m_rowCacheMax[i + 2], m_edgeCacheMax);
         m_vertices.Add(extraVertex);
     }
 
