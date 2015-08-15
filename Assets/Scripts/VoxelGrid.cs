@@ -490,16 +490,34 @@ public class VoxelGrid : MonoBehaviour
                 // Both sharp.
                 return;
             }
-            // First sharp.
+            if (IsBelowLine(point1, c.XEdgePoint, a.YEdgePoint))
+            {
+                TriangulateCase6Connected(i, a, b, c, d);
+                return;
+            }
+            AddQuadB(i, point1);
+            AddTriangleC(i);
             return;
         }
         if (sharp2)
         {
-            // Second sharp.
+            if (IsBelowLine(point2, a.XEdgePoint, b.YEdgePoint))
+            {
+                TriangulateCase6Connected(i, a, b, c, d);
+                return;
+            }
+            AddTriangleB(i);
+            AddQuadC(i, point2);
             return;
         }
+
         AddTriangleB(i);
         AddTriangleC(i);
+    }
+
+    private void TriangulateCase6Connected(int i, Voxel a, Voxel b, Voxel c, Voxel d)
+    {
+
     }
 
     private void TriangulateCase9(int i, Voxel a, Voxel b, Voxel c, Voxel d)
@@ -929,5 +947,11 @@ public class VoxelGrid : MonoBehaviour
         return
             point.x > min.m_position.x && point.y > min.m_position.y &&
             point.x < max.m_position.x && point.y < max.m_position.y;
+    }
+
+    private static bool IsBelowLine(Vector2 p, Vector2 start, Vector2 end)
+    {
+        float determinant = (end.x - start.x) * (p.y - start.y) - (end.y - start.y) * (p.x - start.x);
+        return determinant < 0f;
     }
 }
