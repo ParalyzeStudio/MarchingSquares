@@ -454,6 +454,50 @@ public class VoxelGrid : MonoBehaviour
 
     private void TriangulateCase6(int i, Voxel a, Voxel b, Voxel c, Voxel d)
     {
+        bool sharp1, sharp2;
+        Vector2 point1, point2;
+
+        Vector2 n1 = a.m_xNormal;
+        Vector2 n2 = -b.m_yNormal;
+        if (IsSharpFeature(n1, n2))
+        {
+            point1 = ComputeIntersection(a.XEdgePoint, n1, b.YEdgePoint, n2);
+            sharp1 = ClampToCellMinMax(ref point1, a, d);
+        }
+        else
+        {
+            point1.x = point1.y = 0f;
+            sharp1 = false;
+        }
+
+        n1 = c.m_xNormal;
+        n2 = -a.m_yNormal;
+        if (IsSharpFeature(n1, n2))
+        {
+            point2 = ComputeIntersection(c.XEdgePoint, n1, a.YEdgePoint, n2);
+            sharp2 = ClampToCellMaxMin(ref point2, a, d);
+        }
+        else
+        {
+            point2.x = point2.y = 0f;
+            sharp2 = false;
+        }
+
+        if (sharp1)
+        {
+            if (sharp2)
+            {
+                // Both sharp.
+                return;
+            }
+            // First sharp.
+            return;
+        }
+        if (sharp2)
+        {
+            // Second sharp.
+            return;
+        }
         AddTriangleB(i);
         AddTriangleC(i);
     }
