@@ -487,17 +487,27 @@ public class VoxelGrid : MonoBehaviour
         {
             if (sharp2)
             {
-                // Both sharp.
+                if (IsBelowLine(point2, a.XEdgePoint, point1))
+                {
+                    if (
+                        IsBelowLine(point2, point1, b.YEdgePoint) ||
+                        IsBelowLine(point1, point2, a.YEdgePoint))
+                    {
+                        TriangulateCase6Connected(i, a, b, c, d);
+                        return;
+                    }
+                }
+                else if (
+                    IsBelowLine(point2, point1, b.YEdgePoint) &&
+                    IsBelowLine(point1, c.XEdgePoint, point2))
+                {
+                    TriangulateCase6Connected(i, a, b, c, d);
+                    return;
+                }
+                AddQuadB(i, point1);
+                AddQuadC(i, point2);
                 return;
             }
-            if (IsBelowLine(point1, c.XEdgePoint, a.YEdgePoint))
-            {
-                TriangulateCase6Connected(i, a, b, c, d);
-                return;
-            }
-            AddQuadB(i, point1);
-            AddTriangleC(i);
-            return;
         }
         if (sharp2)
         {
