@@ -527,7 +527,37 @@ public class VoxelGrid : MonoBehaviour
 
     private void TriangulateCase6Connected(int i, Voxel a, Voxel b, Voxel c, Voxel d)
     {
+        Vector2 n1 = a.m_xNormal;
+        Vector2 n2 = -a.m_yNormal;
+        if (IsSharpFeature(n1, n2))
+        {
+            Vector2 point = ComputeIntersection(a.XEdgePoint, n1, a.YEdgePoint, n2);
+            if (IsInsideCell(point, a, d) && IsBelowLine(point, c.m_position, b.m_position))
+            {
+                AddPentagonBCToA(i, point);
+            }
+            else
+            {
+                AddQuadBCToA(i);
+            }
+        }
+        else
+        {
+            AddQuadBCToA(i);
+        }
 
+        n1 = c.m_xNormal;
+        n2 = -b.m_yNormal;
+        if (IsSharpFeature(n1, n2))
+        {
+            Vector2 point = ComputeIntersection(c.XEdgePoint, n1, b.YEdgePoint, n2);
+            if (IsInsideCell(point, a, d) && IsBelowLine(point, b.m_position, c.m_position))
+            {
+                AddPentagonBCToD(i, point);
+                return;
+            }
+        }
+        AddQuadBCToD(i);
     }
 
     private void TriangulateCase9(int i, Voxel a, Voxel b, Voxel c, Voxel d)
@@ -679,6 +709,28 @@ public class VoxelGrid : MonoBehaviour
     private void AddPentagonCD(int i, Vector2 extraVertex)
     {
         AddPentagon(m_vertices.Count, m_edgeCacheMin, m_rowCacheMax[i], m_rowCacheMax[i + 2], m_edgeCacheMax);
+        m_vertices.Add(extraVertex);
+    }
+
+    private void AddQuadBCToA(int i)
+    {
+        AddQuad(m_edgeCacheMin, m_rowCacheMax[i], m_rowCacheMin[i + 2], m_rowCacheMin[i + 1]);
+    }
+
+    private void AddPentagonBCToA(int i, Vector2 extraVertex)
+    {
+        AddPentagon(m_vertices.Count, m_edgeCacheMin, m_rowCacheMax[i], m_rowCacheMin[i + 2], m_rowCacheMin[i + 1]);
+        m_vertices.Add(extraVertex);
+    }
+
+    private void AddQuadBCToD(int i)
+    {
+        AddQuad(m_edgeCacheMax, m_rowCacheMin[i + 2], m_rowCacheMax[i], m_rowCacheMax[i + 1]);
+    }
+
+    private void AddPentagonBCToD(int i, Vector2 extraVertex)
+    {
+        AddPentagon(m_vertices.Count, m_edgeCacheMax, m_rowCacheMin[i + 2], m_rowCacheMax[i], m_rowCacheMax[i + 1]);
         m_vertices.Add(extraVertex);
     }
 
